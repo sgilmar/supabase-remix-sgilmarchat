@@ -1,8 +1,10 @@
 import {Form, useLoaderData, useRouteLoaderData} from "@remix-run/react";
-import type {ActionArgs, LoaderArgs} from "@remix-run/node";
 import {json} from "@remix-run/node";
 import {createSupabaseServerClient} from "~/utils/supabase.server";
 import {Login} from "~/components/Login";
+import {RealTimeMessages} from "~/components/RealTimeMessages";
+
+import type {ActionArgs, LoaderArgs} from "@remix-run/node";
 
 // loader de datos en el server
 export const loader = async ({request}: LoaderArgs) => {
@@ -41,7 +43,7 @@ export default function Index() {
 				<button type="submit">Enviar mensaje</button>
 			</Form>
 			
-			<pre>{JSON.stringify(messages, null, 2)}</pre>
+			<RealTimeMessages serverMessages={messages}/>
 		</div>
 	);
 }
