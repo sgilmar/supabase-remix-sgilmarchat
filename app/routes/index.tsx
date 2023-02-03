@@ -1,6 +1,6 @@
-import {useLoaderData} from "@remix-run/react";
-import type {LoaderArgs} from "@remix-run/node";
-import {json } from "@remix-run/node";
+import {Form, useLoaderData, useRouteLoaderData} from "@remix-run/react";
+import type {ActionArgs, LoaderArgs} from "@remix-run/node";
+import {json} from "@remix-run/node";
 import {createSupabaseServerClient} from "~/utils/supabase.server";
 import {Login} from "~/components/Login";
 
@@ -13,6 +13,21 @@ export const loader = async ({request}: LoaderArgs) => {
 	return json({messages: data ?? []}, {headers: response.headers});
 };
 
+// action > función que se ejecuta cuando se hace submit en el form del componente
+export const action = async ({request}: ActionArgs) => {
+	const response = new Response();
+	const supabase = createSupabaseServerClient({request, response});
+	
+	// formData de la request
+	const formData = await request.formData();
+	// Recuperar todos los inputs
+	const {message} = Object.fromEntries(formData);
+	// Guardar en supabase
+	await supabase.from('messages').insert({content: String(message)})
+	
+	return json({message: 'ok'}, {headers: response.headers})
+}
+
 export default function Index() {
 	const {messages} = useLoaderData<typeof loader>();
 	
@@ -20,6 +35,12 @@ export default function Index() {
 		<div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
 			<h1>sgilmar Chat Real Time</h1>
 			<Login/>
+			
+			<Form method="post">
+				<input type="text" name="message"/>
+				<button type="submit">Enviar mensaje</button>
+			</Form>
+			
 			<pre>{JSON.stringify(messages, null, 2)}</pre>
 		</div>
 	);
